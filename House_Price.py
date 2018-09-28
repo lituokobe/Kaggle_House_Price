@@ -12,35 +12,35 @@ import numpy as np
 import pandas as pd
 
 
-# In[15]:
+# In[2]:
 
 
-train_df = pd.read_csv('./input/train.csv', index_col = 0)
+train_df = pdhttp://localhost:8889/notebooks/House_Price.ipynb#.read_csv('./input/train.csv', index_col = 0)
 test_df = pd.read_csv('./input/test.csv', index_col = 0)
 #We don't need pandas' default column index
 
 
 # ### Check the data###
 
-# In[17]:
+# In[3]:
 
 
 train_df.head()
 
 
-# In[18]:
+# In[4]:
 
 
 train_df.shape
 
 
-# In[19]:
+# In[5]:
 
 
 test_df.head()
 
 
-# In[20]:
+# In[6]:
 
 
 test_df.shape
@@ -52,14 +52,14 @@ test_df.shape
 
 # ### First, let's check the distribution of "SalePrice" in the training set.###
 
-# In[24]:
+# In[7]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
 prices = train_df['SalePrice']
 
 
-# In[25]:
+# In[8]:
 
 
 prices.hist()
@@ -67,7 +67,7 @@ prices.hist()
 
 # We notice that the data is not normal distributed, so we use log1p to make it normal.
 
-# In[27]:
+# In[9]:
 
 
 np.log1p(train_df['SalePrice']).hist()
@@ -75,7 +75,7 @@ np.log1p(train_df['SalePrice']).hist()
 
 # This is normalized, we are going to use it as the result of trianing set.
 
-# In[31]:
+# In[10]:
 
 
 y_train = np.log1p(train_df.pop('SalePrice'))
@@ -83,19 +83,19 @@ y_train = np.log1p(train_df.pop('SalePrice'))
 
 # We will process the features (other columns) as well. In order to make the features in training set and test set uniform, we will combine them to process together.
 
-# In[49]:
+# In[11]:
 
 
 all_df = pd.concat((train_df,test_df),axis=0)
 
 
-# In[56]:
+# In[12]:
 
 
 all_df.shape
 
 
-# In[51]:
+# In[13]:
 
 
 y_train.head()
@@ -107,7 +107,7 @@ y_train.head()
 
 # Based on the description on Kaggle, 'MSSubClass' is actually a category instead of a numeric value.
 
-# In[52]:
+# In[14]:
 
 
 all_df['MSSubClass'].dtypes
@@ -115,13 +115,13 @@ all_df['MSSubClass'].dtypes
 
 # So we need to convert these values into string.
 
-# In[53]:
+# In[15]:
 
 
 all_df['MSSubClass'] = all_df['MSSubClass'].astype(str)
 
 
-# In[54]:
+# In[16]:
 
 
 all_df['MSSubClass'].value_counts()
@@ -129,14 +129,14 @@ all_df['MSSubClass'].value_counts()
 
 # There are other features that are logistic values, we would like to convert them into binary format.
 
-# In[58]:
+# In[17]:
 
 
 all_dummy_df = pd.get_dummies(all_df)
 all_dummy_df.head()
 
 
-# In[95]:
+# In[19]:
 
 
 all_dummy_df.shape
@@ -144,7 +144,7 @@ all_dummy_df.shape
 
 # Then, let's check the missing values.
 
-# In[64]:
+# In[20]:
 
 
 all_dummy_df.isnull().sum().sort_values(ascending=False).head(12)
@@ -152,13 +152,13 @@ all_dummy_df.isnull().sum().sort_values(ascending=False).head(12)
 
 # We see the column of "LotFrontage" has the most missing values, and we are going to fill them with average values.
 
-# In[65]:
+# In[21]:
 
 
 all_dummy_df = all_dummy_df.fillna(all_dummy_df.mean())
 
 
-# In[69]:
+# In[22]:
 
 
 all_dummy_df.isnull().sum().sum()
@@ -166,7 +166,7 @@ all_dummy_df.isnull().sum().sum()
 
 # Then, we pick those columns that are not binary values (numeric values), to normalize them.
 
-# In[98]:
+# In[23]:
 
 
 filter1 = all_dummy_df.dtypes == 'int64'
@@ -175,7 +175,7 @@ numeric_col = all_dummy_df.columns[filter1 | filter2]
 numeric_col
 
 
-# In[105]:
+# In[24]:
 
 
 numeric_col_mean = all_dummy_df.loc[:,numeric_col].mean()
@@ -183,7 +183,7 @@ numeric_col_std = all_dummy_df.loc[:,numeric_col].std()
 all_dummy_df.loc[:,numeric_col] = (all_dummy_df.loc[:,numeric_col] - numeric_col_mean)/ numeric_col_std
 
 
-# In[106]:
+# In[26]:
 
 
 all_dummy_df.head()
@@ -193,20 +193,20 @@ all_dummy_df.head()
 
 # # 4. Build the Model #
 
-# In[111]:
+# In[27]:
 
 
 dummy_train_df = all_dummy_df.loc[train_df.index]
 dummy_test_df = all_dummy_df.loc[test_df.index]
 
 
-# In[112]:
+# In[28]:
 
 
 dummy_train_df.shape,dummy_test_df.shape
 
 
-# In[118]:
+# In[29]:
 
 
 X_train = dummy_train_df.values
@@ -215,7 +215,7 @@ X_test = dummy_test_df.values
 
 # ## 4.1 Ridge Regression##
 
-# In[127]:
+# In[30]:
 
 
 from sklearn.linear_model import Ridge
@@ -245,14 +245,14 @@ plt.title('Alphas VS CV Error')
 # In[141]:
 
 
-min(test_scores)
+np.min(test_scores)
 
 
 # Using Ridge, the minum score can be around 0.135, while alpha is about 15.
 
 # ## 4.2 Random Forest##
 
-# In[144]:
+# In[31]:
 
 
 from sklearn.ensemble import RandomForestRegressor
@@ -279,7 +279,7 @@ plt.title("Max Features vs CV Error");
 # In[150]:
 
 
-min(test_scores)
+np.min(test_scores)
 
 
 # Using Random Forest, the minum score can be around 0.137, while max feature is 3.
@@ -333,6 +333,151 @@ submission_df.shape
 # The result looks good. And we export it then submit it.
 
 # In[168]:
+
+
+submission_df.to_csv('submission.csv',index = False)
+
+
+# # *5. Use advanced methodologies to boost the result#
+
+# ## 5.1 Bagging##
+
+# We use many small classifiers to train random sets of data, and then to combine all the results to reach a good one.
+
+# In[36]:
+
+
+from sklearn.ensemble import BaggingRegressor
+
+
+# We already know that for ridge regressor, the best alpha is 15.
+
+# In[32]:
+
+
+ridge = Ridge(15)
+
+
+# In[44]:
+
+
+params = [1,5,10,15,20,25,30,35,40]
+test_scores = []
+for param in params:
+    clf = BaggingRegressor(n_estimators = param, base_estimator = ridge)
+    test_score = np.sqrt(-cross_val_score(clf, X_train, y_train, cv = 10, scoring = 'neg_mean_squared_error'))
+    test_scores.append(np.mean(test_score))
+
+
+# In[45]:
+
+
+import matplotlib.pyplot as plt
+get_ipython().run_line_magic('matplotlib', 'inline')
+plt.plot(params, test_scores)
+plt.title("n_estimator vs CV Error");
+
+
+# In[46]:
+
+
+np.min(test_scores)
+
+
+# By using the bagging regressor combined with ridge, we reach 0.132.
+
+# ## 5.2 Adaboosting##
+
+# In[47]:
+
+
+from sklearn.ensemble import AdaBoostRegressor
+
+
+# In[62]:
+
+
+params = [1,2,3,4,5,10,15,20]
+test_scores = []
+for param in params:
+    clf = AdaBoostRegressor(n_estimators = param, base_estimator = ridge)
+    test_score = np.sqrt(-cross_val_score(clf, X_train, y_train, cv =10, scoring ='neg_mean_squared_error'))
+    test_scores.append(np.mean(test_score))
+
+
+# In[63]:
+
+
+plt.plot(params,test_scores)
+plt.title("n_estimator vs CV Error")
+
+
+# In[65]:
+
+
+np.min(test_scores)
+
+
+# Not that good, the result's squared error is 0.14.
+
+# ## 5.3 XGBoost##
+
+# Finnaly, we are going to use the most reknowned XGBoost to boost the classifier.
+
+# In[67]:
+
+
+from xgboost import XGBRegressor
+
+
+# In[69]:
+
+
+params = [1,2,3,4,5,6]
+test_scores=[]
+for param in params:
+    clf = XGBRegressor(max_depth = param)
+    test_score = np.sqrt(-cross_val_score(clf, X_train, y_train, cv = 10, scoring = 'neg_mean_squared_error'))
+    test_scores.append(np.mean(test_score))
+    
+
+
+# In[71]:
+
+
+plt.plot(params,test_scores)
+plt.title('max_depth vs CV Error')
+
+
+# In[72]:
+
+
+np.min(test_scores)
+
+
+# It's a incredible 0.217, it proves that XGBoost is indeed a good tool. So we are going to use this classifier to run the test set and submit again.
+
+# In[74]:
+
+
+XGBR = XGBRegressor(max_depth = 5).fit(X_train,y_train)
+y_xgbr = np.expm1(XGBR.predict(X_test))
+
+
+# In[75]:
+
+
+submission_df = pd.DataFrame({'Id':test_df.index,'SalePrice':y_xgbr})
+submission_df.head()
+
+
+# In[76]:
+
+
+submission_df.shape
+
+
+# In[77]:
 
 
 submission_df.to_csv('submission.csv',index = False)
